@@ -5,7 +5,13 @@ type Settings ={
   boardColor:string,
   rows:number,
   columns:number,
-  offset:number
+  offset:number,
+  keys:{
+    left:number,
+    right:number,
+    down:number,
+    rotate:number
+  }
 }
 export const settings:Settings ={
   blockSize:30,
@@ -21,5 +27,11 @@ export const settings:Settings ={
     boardColor:'white',
     rows:20,
     columns:10,
-    offset:1.1
+    offset:1.1,
+    keys:{
+      left:37,
+      right:39,
+      down:40,
+      rotate:38
+    }
 } 
