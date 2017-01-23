@@ -1,8 +1,40 @@
-import React from 'react'
+//@flow
+import React, { Component } from 'react'
+import { Block } from './block'
+import { rotateMatrix } from './helpers'
+import  './tetromino.css'
+type Props ={
+    settings:{},
+    column:number,
+    row:number,
+    index:number
+  }
+type State ={
+  className:string,
+  matrix:number[][]
+}
+export default class Tetromino  extends Component{
+  column:number
+  row:number
+  matrix:number[][]
+  tetrominoesArray:number[][][]
+  settings:{}
+  state:State
+  
+  constructor (props:Props){
+    super (props)
+    this.settings=props.settings
+    this.tetrominoesArray=  Tetromino.getTetrominoesArray()
+    this.state={
+      className:'move',
+      matrix:this.tetrominoesArray[props.index],
+      column: props.column,
+      row: props.row
 
-export const Tetromino = (props)=>{
-  const getTetromino = (index)=>{
-    const tetrominoesArray = [
+    }
+  }
+  static getTetrominoesArray(){
+    return [
       [
         [0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -40,9 +72,63 @@ export const Tetromino = (props)=>{
       ],
 
     ]
-    return tetrominoesArray[index]
   }
-  return(
-    <div></div>
-  )
+  static getNumberOfTetrominoes():number{
+    //there are 6 tetrominoes
+    return this.getTetrominoesArray().length
+  }
+  handleClick=(event:Event,index:number)=>{
+    
+    const newMatrix = rotateMatrix(this.state.matrix,'RIGHT').slice()
+    console.table(newMatrix)
+    this.setState({
+      matrix:newMatrix
+    })
+  }
+  move=(direction:string)=>{
+    switch (direction){
+      case 'DOWN':
+        this.row++
+      break      
+      case 'LEFT':
+        this.column--
+      break
+      case 'RIGHT':
+        this.column++
+      break
+    }
+
+  }
+  rotate=(direction:string)=>{
+    const newMatrix = rotateMatrix(this.state.matrix, direction).slice()
+    this.setState({matrix:newMatrix})
+  }
+  render=()=>{
+    
+    return (
+      <div>
+        {this.state.matrix.map((column, columnIndex) =>
+        column.map((row, rowIndex) => {
+          const content=this.state.matrix[columnIndex][rowIndex]
+          console.log(content)
+          return <Block
+                    className={content!==0 ?this.state.className : 'transparent-block'}
+                    settings={this.settings}
+                    key={rowIndex + ' ' + columnIndex}
+                    index={{ column: columnIndex, row:rowIndex  }}
+                    content={content}
+                    id={"id"+rowIndex + columnIndex}
+                    row={this.props.row + rowIndex}
+                    column={this.props.column + columnIndex}
+                    onClick={ this.handleClick}
+          >
+         row:{this.state.row + rowIndex}
+         <br/>
+         column:{this.state.column + columnIndex}
+          </Block>
+        })
+      )}
+      </div>
+    )
+  }
 }

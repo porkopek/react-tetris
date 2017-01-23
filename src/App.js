@@ -5,7 +5,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Tetris blockSize={30}/>
+        <Tetris settings={{blockSize:100}}/>
       </div>
     );
   }
