@@ -11,7 +11,9 @@ type Settings ={
     right:number,
     down:number,
     rotate:number
-  }
+  },
+  blockBorderColor:string,
+  speedInMiliSeconds:number
 }
 export const settings:Settings ={
   blockSize:30,
@@ -33,5 +35,7 @@ export const settings:Settings ={
       right:39,
       down:40,
       rotate:38
-    }
+    },
+    blockBorderColor:'transparent',
+    speedInMiliSeconds:1000
 } 

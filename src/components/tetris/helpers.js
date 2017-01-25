@@ -17,11 +17,11 @@ export const rotateMatrix = (matrix: number[][], rotation: Rotation):number [][]
 }
 
 //creates an Array of Arrays (rows*columns) filled with value or with 0
-export const createMatrix = (columns:number, rows:number, value:number=0):number[][]=>{
+export const createMatrix = ( rows:number, columns:number,value:number=0):number[][]=>{
   let matrix =[]
-  for (let row=0;row<columns;row++){
+  for (let row=0;row<rows;row++){
     matrix[row]=[]
-    for (let column=0;column<rows;column++){
+    for (let column=0;column<columns;column++){
       matrix[row][column]=value
     }
   }
