@@ -8,12 +8,12 @@ import TetrominoModel from '../../models/tetromino-model'
 type Props = {
   settings: typeof settings
 }
-type State ={
-    board: number[][],
-    tetromino: TetrominoModel,
-    intervalId:number,
-    intervalTime:number
-  }
+type State = {
+  board: number[][],
+  tetromino: TetrominoModel,
+  intervalId: number,
+  intervalTime: number
+}
 export default class Tetris extends Component {
   board: number[][]
   settings: typeof settings
@@ -24,11 +24,12 @@ export default class Tetris extends Component {
     this.settings = Object.assign({}, settings, props.settings)
     this.tetrominoesColors = this.settings.tetrominoesColors
     this.handleKeyboard()
+    
     this.state = {
       board: this.initializeBoard(),
       tetromino: this.getNewTetromino(),
-      intervalId:0,
-      intervalTime:this.settings.speedInMiliSeconds
+      intervalId: 0,
+      intervalTime: this.settings.intervalTimeInMiliSeconds
     }
 
   }
@@ -97,9 +98,9 @@ export default class Tetris extends Component {
             || column + tetromino.column >= this.settings.columns
             || column + tetromino.column < 0) {
             return true
-          } 
+          }
           //board is occuppied
-         if (board[row + tetromino.row][column + tetromino.column] !== 0) {
+          if (board[row + tetromino.row][column + tetromino.column] !== 0) {
             return true
           }
         }
@@ -107,41 +108,42 @@ export default class Tetris extends Component {
     }
     return false
   }
- 
-  completedLines =()=>{
-    const linesArray=[]
-    this.state.board.forEach((row, rowIndex)=>
-        (row.some(column=>
-          column===0)
-            ? null //some elements are 0, so it's not empty
-            : linesArray.push(rowIndex) //none element is 0, so it's full
-        ))
+
+  completedLines = () => {
+    const linesArray = []
+    this.state.board.forEach((row, rowIndex) =>
+      (row.some(column =>
+        column === 0)
+        ? null //some elements are 0, so it's not empty
+        : linesArray.push(rowIndex) //none element is 0, so it's full
+      ))
     return linesArray
   }
-  clearCompletedLines=()=> {
-    for (let row=0;row<this.settings.rows;row++){
-      for (let column=0;column<this.settings.columns;column++){
-        if (this.state.board[column][row]===0) return false
+  clearCompletedLines = () => {
+    for (let row = 0; row < this.settings.rows; row++) {
+      for (let column = 0; column < this.settings.columns; column++) {
+        if (this.state.board[column][row] === 0) return false
       }
     }
     return true
   }
-  insertTetrominoInBoard =()=>{
+  insertTetrominoInBoard = () => {
     const newBoard = this.state.board.slice()
-    const {tetromino}=this.state
-    tetromino.matrix.map((row, rowIndex)=>
-      row.map((column,columnIndex)=>{
-          if (tetromino.matrix[rowIndex][columnIndex]!==0){
-            newBoard[rowIndex+tetromino.row][columnIndex+tetromino.column]=tetromino.matrix[rowIndex][columnIndex]          
-          }}
-    ))
+    const {tetromino} = this.state
+    tetromino.matrix.map((row, rowIndex) =>
+      row.map((column, columnIndex) => {
+        if (tetromino.matrix[rowIndex][columnIndex] !== 0) {
+          newBoard[rowIndex + tetromino.row][columnIndex + tetromino.column] = tetromino.matrix[rowIndex][columnIndex]
+        }
+      }
+      ))
     const completedLines = this.completedLines()
-    for (let completedLine of completedLines){
-      newBoard.splice(completedLine, 1) 
+    for (let completedLine of completedLines) {
+      newBoard.splice(completedLine, 1)
       newBoard.unshift(new Array(this.settings.columns).fill(0))
     }
     this.setState({
-      board:newBoard
+      board: newBoard
     })
 
   }
@@ -166,34 +168,34 @@ export default class Tetris extends Component {
       )
     )
   }
- 
-  
-  componentDidMount(){
-     const intervalId = window.setInterval(()=>this.mainLoop(), this.state.intervalTime)
-     this.setState({intervalId:this.state.intervalId})
+
+  componentWillMount=()=>{
+    this.mainLoop()
   }
-  mainLoop =()=>{
-    let newTetromino = Object.assign({}, this.state.tetromino)
+  changeInterval=()=>{
+    this.setState((prev:State)=>({intervalTime:prev.intervalTime-100}))
+  }
+  mainLoop = () => {
+    clearInterval(this.state.intervalId)
+    let tetromino = Object.assign({}, this.state.tetromino)
     const newBoard = this.state.board.slice()
-    newTetromino.row++
-    if (this.hasCollided(newTetromino, this.state.board)){
-      newTetromino= this.getNewTetromino()
+    tetromino.row++
+    if (this.hasCollided(tetromino, this.state.board)) {
+      tetromino = this.getNewTetromino()
       this.insertTetrominoInBoard()
+      this.changeInterval()
     }
     
-    this.setState({
-      tetromino:newTetromino
-    })
+    const intervalId = setTimeout(() => this.mainLoop(), this.state.intervalTime)
+    console.log(intervalId)
+    this.setState({tetromino, intervalId})
   }
   render() {
- 
-
-    
-    
     return (
       <div>
+      <div>{this.state.intervalTime}</div>
         {this.renderBoard()}
-        <Tetromino
+        <Tetromino key={Math.random() * 10000000000}
           {...this.state.tetromino}
           settings={this.settings}
 
