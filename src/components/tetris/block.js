@@ -10,7 +10,7 @@ export const Block = (props)=>{
     top: props.index.row * offset * blockSize + 100,
     left: props.index.column * offset * blockSize + 700,
     position: 'absolute',
-    border: isBackGround ? null : `1px solid ${blockBorderColor}`
+    border: isBackGround ? null : `1px solid ${blockBorderColor}`,
   }
   
   
