@@ -10,7 +10,7 @@ class App extends Component {
                             offset: 1.3, 
                             rows: 20, 
                             columns: 10, 
-                            blockBorderColor: 'black', 
+                            blockBorderColor: 'white', 
                             boardColor:'white' }} 
         />
       </div>

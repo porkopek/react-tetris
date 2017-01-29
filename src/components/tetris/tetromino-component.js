@@ -16,7 +16,7 @@ type Props = {
 export const Tetromino = (props: Props) => {
   const {tetrominoesColors} = props.settings
   return (
-    <div>
+    <div>    
       {props.matrix.map((row, rowIndex) =>
         row.map((column, columnIndex) => {
           const content = props.matrix[rowIndex][columnIndex]

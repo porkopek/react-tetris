@@ -2,7 +2,7 @@ import { rotateMatrix } from '../components/tetris/helpers'
 type Direction = 'LEFT' | 'RIGHT' | 'DOWN' | 'UP'
 type Rotation = 'LEFT' | 'RIGTH'
 export default class TetrominoModel {
-  constructor(column,row,  index, name) {
+  constructor(column,row,  index) {
     this.matrix = TetrominoModel.getTetrominoesArray()[index]
     this.row=row
     this.column=column

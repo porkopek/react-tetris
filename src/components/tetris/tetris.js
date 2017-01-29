@@ -14,7 +14,10 @@ type State = {
   tetromino: TetrominoModel,
   intervalId: number,
   intervalTime: number,
-  paused: boolean
+  paused: boolean,
+  points:number,
+  linesCleared:number,
+  level:number
 }
 export default class Tetris extends Component {
   board: number[][]
@@ -29,10 +32,13 @@ export default class Tetris extends Component {
     this.state = {
       board: this.initializeBoard(),
       tetrominoesArray:this.initializeTetrominoesArray(),
-      tetromino:new TetrominoModel(0, 1, 2, 'state') ,
+      tetromino:new TetrominoModel(3, -1, Math.random()*7|0) ,
       intervalId: 0,
       intervalTime: this.settings.intervalTimeInMiliSeconds,
-      paused: false
+      paused: false,
+      points: 0,
+      linesCleared:0,
+      level:1
     }
 
   }
@@ -50,29 +56,42 @@ export default class Tetris extends Component {
     
 
   }
+  getStartPoint = (matrix: number[][]): { row: number, column: number } => {
+    let finalRow=0,finalColumn=0
+    for (let rowIndex=0;rowIndex<matrix.length;rowIndex++) {
+      const row =matrix[rowIndex]
+      if (row.some(cell => cell !== 0)) {
+        const columnIndex = (this.state.board[0].length / 2 - matrix.length / 2) | 0
+        finalRow=0-rowIndex
+        finalColumn=columnIndex
+        return {row:finalRow, column:finalColumn}
+      }
+    }
+    return {row:0, column:0}
+
+  }
   getNewTetromino = (): TetrominoModel => {
     const {tetrominoesArray} = this.state
     const tetrominoIndex = tetrominoesArray.shift()
-    const newTetromino = new TetrominoModel(0, 1, tetrominoIndex)
+    const startPoint = this.getStartPoint(TetrominoModel.getTetrominoesArray()[tetrominoIndex])
+    const newTetromino = new TetrominoModel(startPoint.column, startPoint.row, tetrominoIndex)
     tetrominoesArray.push(Math.random()*TetrominoModel.getNumberOfTetrominoes()|0)
-    console.log(tetrominoesArray)
     this.setState({tetrominoesArray})
-
-
     
     return newTetromino
   }
   handleClick = (event: Event, index: { column: number, row: number }) => {
     const newBoard = this.state.board.slice()
-    const content = newBoard[index.row][index.column] !== 0 ? 0 : 2
-    newBoard[index.row][index.column] = content
+    const content = newBoard[index.row][index.column] !== 0 
+                      ? [0,0,0,0,0,0,0,0,0,0] 
+                      : [2,2,2,2,2,2,2,2,2,2]
+    newBoard[index.row] = content
     this.setState(
       {
         board: newBoard
       })
 
   }
-
   handleKeyboard = () => {
     window.addEventListener('keydown', e => {
       const key = settings.keys
@@ -135,8 +154,7 @@ export default class Tetris extends Component {
     }
     return false
   }
-
-  completedLines = () => {
+  completedLines = ():number[] => {
     const linesArray = []
     this.state.board.forEach((row, rowIndex) =>
       (row.some(column =>
@@ -146,13 +164,21 @@ export default class Tetris extends Component {
       ))
     return linesArray
   }
-  clearCompletedLines = () => {
-    for (let row = 0; row < this.settings.rows; row++) {
-      for (let column = 0; column < this.settings.columns; column++) {
-        if (this.state.board[column][row] === 0) return false
-      }
+  clearCompletedLines = (completedLines:number[]) => {
+    const newBoard = this.state.board.slice()   
+    for (let completedLine of completedLines) {
+      newBoard.splice(completedLine, 1)
+      newBoard.unshift(new Array(this.settings.columns).fill(0))
     }
-    return true
+    this.setState({
+      board: newBoard
+    })
+  }
+  gameOver=()=>{
+    
+    const board =this.initializeBoard()    
+    this.setState({board})
+    
   }
   insertTetrominoInBoard = () => {
     const newBoard = this.state.board.slice()
@@ -164,38 +190,42 @@ export default class Tetris extends Component {
         }
       }
       ))
-    const completedLines = this.completedLines()
-    for (let completedLine of completedLines) {
-      newBoard.splice(completedLine, 1)
-      newBoard.unshift(new Array(this.settings.columns).fill(0))
-    }
     this.setState({
       board: newBoard
     })
 
+  }
+  updatePoints = (completedLines: number) => {
+    let {points} = this.state
+    let extraPoints = 0
+    for (let i = 0; i < completedLines; i++) {
+      extraPoints += (i * 200)
+    }
+    points += extraPoints + this.settings.pointsPerLine * completedLines
+    this.setState({ points })
   }
   renderBoard = () => {
     return (
       this.state.board.map((row, rowIndex) =>
         row.map((column, columnIndex) => {
           const content = this.state.board[rowIndex][columnIndex]
-          return <Block
-            backgroundColor={content !== 0 ?
-              this.settings.tetrominoesColors[content - 1] :
-              this.settings.boardColor
-            }
-            settings={this.settings}
-            key={"key" + columnIndex + rowIndex}
-            index={{ row: rowIndex, column: columnIndex }}
-            content={content}
-            id={"id" + columnIndex + rowIndex}
-            onClick={this.handleClick}
-            />
+          return (
+            <Block
+              backgroundColor={content !== 0 ?
+                this.settings.tetrominoesColors[content - 1] :
+                this.settings.boardColor
+              }
+              settings={this.settings}
+              key={"key" + columnIndex + rowIndex}
+              index={{ row: rowIndex, column: columnIndex }}
+              content={content}
+              id={"id" + columnIndex + rowIndex}
+              onClick={this.handleClick}           
+            />)
         })
       )
     )
   }
-
   componentWillMount = () => {
     this.mainLoop()
   }
@@ -217,6 +247,15 @@ export default class Tetris extends Component {
     if (this.hasCollided(tetromino, this.state.board)) {
       tetromino = this.getNewTetromino()
       this.insertTetrominoInBoard()
+      const completedLinesArray = this.completedLines()
+      if (completedLinesArray.length>0) {
+        this.clearCompletedLines(completedLinesArray)
+        this.updatePoints(completedLinesArray.length)
+      }else{
+        if (this.state.board[1].some(x=>x!=0)){
+          this.gameOver()
+        }
+      }
       this.changeInterval()
     }
 
@@ -224,26 +263,21 @@ export default class Tetris extends Component {
     this.setState({ tetromino, intervalId })
   }
   render() {
-    console.table(TetrominoModel.getTetrominoesArray()[this.state.tetrominoesArray[0]])
     return (
       <div>
         <div>{this.state.intervalTime}</div>
-         <Tetromino
+        <div>PAUSED: {this.state.paused ? ' true' : ' false'}</div>
+        <div>POINTS: {this.state.points}</div>
+        <div>X: {this.state.tetromino.column}, Y: {this.state.tetromino.row}</div>
+        <Tetromino
           row = {5}
           column={13}
           matrix={TetrominoModel.getTetrominoesArray()[this.state.tetrominoesArray[0]]}
+          index={this.state.tetrominoesArray[0]}
           settings={this.settings}
+          className=''
 
-          />
-          <Tetromino
-          row = {9}
-          column={13}
-          matrix={TetrominoModel.getTetrominoesArray()[this.state.tetrominoesArray[1]]}
-          settings={this.settings}
-
-          />
-        <div>PAUSED: {this.state.paused ? ' true' : ' false'}</div>
-       
+        />
         {this.renderBoard()}
         <Tetromino
           {...this.state.tetromino}
