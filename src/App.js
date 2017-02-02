@@ -7,11 +7,13 @@ class App extends Component {
     return (
       <div className="App">
         <Tetris settings={{ blockSize: 20, 
-                            offset: 1.3, 
+                            offset: 5, 
                             rows: 20, 
                             columns: 10, 
-                            blockBorderColor: 'white', 
-                            boardColor:'white' }} 
+                            blockBorderWidth:1,
+                            blockBorderColor: 'black',
+                            boardColor:'white' 
+                          }} 
         />
       </div>
     );

@@ -14,6 +14,7 @@ type Settings = {
     pause: number
   },
   blockBorderColor: string,
+  blockBorderWidth:number,
   intervalTimeInMiliSeconds: number,
   pointsPerLine:number
 }
@@ -40,6 +41,7 @@ export const settings: Settings = {
     pause : 27
   },
   blockBorderColor: 'transparent',
+  blockBorderWidth:0,
   intervalTimeInMiliSeconds: 1000,
   pointsPerLine:1000
 

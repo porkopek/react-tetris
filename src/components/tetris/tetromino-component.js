@@ -17,7 +17,7 @@ export const Tetromino = (props: Props) => {
   const {tetrominoesColors} = props.settings
   return (
     <div>    
-     test
+    
     </div>
   )
 
