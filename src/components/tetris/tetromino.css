@@ -9,8 +9,8 @@
  position: absolute;
   transform: rotate(90deg);
   z-index: 1000;
-}
-.transparent-block{
-  background-color:rgba(256,0,0,1);
-  z-index: 11000;
 }*/
+.transparent-block{
+  background-color:rgba(0,0,0,.3);
+  z-index: 11000;
+}

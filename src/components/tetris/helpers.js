@@ -8,9 +8,7 @@ const reverse = matrix => _.cloneDeep(matrix).reverse()
 type Rotation = 'LEFT' | 'RIGHT'
 //returns a new Matrix and the original matrix is not mutated
 export const rotateMatrix = (matrix: number[][], rotation: Rotation):number [][] => {
-  
   let transposedMatrix:number[][] = transpose(matrix)
-   
   return rotation === 'LEFT'
     ? reverse(transposedMatrix)
     : transposedMatrix.map(r => reverse(r))

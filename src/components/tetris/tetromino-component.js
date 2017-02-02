@@ -2,8 +2,8 @@
 import React, { Component } from 'react'
 import { Block } from './block'
 import { rotateMatrix } from './helpers'
-
 import './tetromino.css'
+
 type Props = {
   settings: { tetrominoesColors: string[] },
   column: number,
@@ -22,7 +22,7 @@ export const Tetromino = (props: Props) => {
           const content = props.matrix[rowIndex][columnIndex]
           return (
             <Block
-              backgroundColor={content !== 0 ? tetrominoesColors[content - 1] : 'transparent'}
+              backgroundColor={content !== 0 ? tetrominoesColors[content - 1] : 'rgba(0,0,0,.1)'}
               className={content !== 0 ? props.className : 'transparent-block'}
               settings={props.settings}
               key={columnIndex + ' ' + rowIndex}
@@ -31,7 +31,7 @@ export const Tetromino = (props: Props) => {
               id={"id" + columnIndex + rowIndex}
               row={props.row + rowIndex}
               column={props.column + columnIndex}
-              style={{zIndex:content !== 0 ?1000 : -1000}}
+              style={{zIndex:content !== 0 ?1000 : 1000}}
             />)
         })
       )}

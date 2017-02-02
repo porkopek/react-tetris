@@ -1,16 +1,15 @@
 import { rotateMatrix } from '../components/tetris/helpers'
+import { settings } from '../components/tetris/settings'
 type Direction = 'LEFT' | 'RIGHT' | 'DOWN' | 'UP'
 type Rotation = 'LEFT' | 'RIGTH'
 export default class TetrominoModel {
-  constructor(column,row,  index) {
+  constructor(column, row, index) {
     this.matrix = TetrominoModel.getTetrominoesArray()[index]
-    this.row=row
-    this.column=column
-    this.name=name
-    this.move= this.move.bind(this)
-    
+    this.row = row
+    this.column = column
+    this.name = name
   }
-  static  getTetrominoesArray(){
+  static getTetrominoesArray() {
     return [
       [
         [0, 0, 0, 0],
@@ -50,24 +49,43 @@ export default class TetrominoModel {
 
     ]
   }
-  static getNumberOfTetrominoes():number{
+  static getNumberOfTetrominoes(): number {
     //there are 6 tetrominoes
     return this.getTetrominoesArray().length
   }
-  get abosoluteMatrix(){
-    
-  }
-  move (direction: Direction){
-    switch (direction){
-     
+  
+  move(direction: Direction) {
+    switch (direction) {
+
       case 'DOWN':
-        this.row = this.row+1
-      break
+        this.row = this.row + 1
+        break
     }
   }
   rotate = (rotation: Rotation) => {
     const firstMatrix = this.matrix
     const newMatrix = rotateMatrix(this.matrix, rotation)
     return newMatrix
+  }
+ collidesWith (board: [][]): boolean  {
+
+    for (let row = 0; row < this.matrix.length; row++) {
+      for (let column = 0; column < this.matrix.length; column++) {
+        if (this.matrix[row][column] !== 0) {
+          //board boundaries
+          if (row + this.row >= settings.rows
+            || row + this.row <= 0
+            || column + this.column >= settings.columns
+            || column + this.column < 0) {
+              return true
+          }
+          //board is occuppied
+          if (board[row + this.row][column + this.column] !== 0) {
+            return true
+          }
+        }
+      }
+    }
+    return false
   }
 }
