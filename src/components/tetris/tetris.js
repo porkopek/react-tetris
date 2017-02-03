@@ -50,9 +50,7 @@ export default class Tetris extends Component {
 
   }
   initializeBoard = () => {
-    const boardMatrix= createMatrix(this.settings.rows, this.settings.columns)
-    boardMatrix[19]=[3,3,3,3,3,3,3,3,3,3]
-    return boardMatrix
+    return createMatrix(this.settings.rows, this.settings.columns)
   }
   initializeTetrominoesArray =()=>{     
     const numberOfTetrominoes =TetrominoModel.getNumberOfTetrominoes()
@@ -90,7 +88,17 @@ export default class Tetris extends Component {
     
     return newTetromino
   }
-  moveTetromino = (direction: 'DOWN' | 'LEFT' | 'RIGHT'): void => {
+  getFreeBottomRow = ():number=>{
+    const tetromino:TetrominoModel = Object.assign(new TetrominoModel(), this.state.tetromino)
+    const initialRow=tetromino.row
+    tetromino.row++
+    while(!tetromino.collidesWith(this.state.boardMatrix)){
+      tetromino.row++
+    }
+    const result = tetromino.row - initialRow-1
+    return result
+  }
+  moveTetromino = (direction: 'DOWN' | 'LEFT' | 'RIGHT' | 'BOTTOM'): void => {
     let tetromino = Object.assign(new TetrominoModel(), this.state.tetromino)
     tetromino.collidesWith.bind(tetromino)
     let rowAdvance = 0, columnAdvance = 0
@@ -107,6 +115,8 @@ export default class Tetris extends Component {
       case 'RIGHT':
         columnAdvance++
         break
+      case 'BOTTOM':
+        rowAdvance+=this.getFreeBottomRow()
     }
     tetromino.row += rowAdvance
     tetromino.column += columnAdvance
@@ -167,7 +177,7 @@ export default class Tetris extends Component {
     window.addEventListener('keydown', e => {
       const key = settings.keys
       //if e.keyCode is not one of the keys that operates Tetromino, returns
-     // if (!Object.values(key).includes(e.keyCode)) return
+      if (!Object.values(key).includes(e.keyCode)) return
       const newTetromino = Object.assign({}, this.state.tetromino)
       switch (e.keyCode) {
         case key.left:
@@ -185,11 +195,8 @@ export default class Tetris extends Component {
         case key.pause:
           this.setState((prevState) => ({ paused: prevState.paused ? false : true }))
           return          
-        case 48:
-          const tetromino = Object.assign({}, this.state.tetromino)
-          tetromino.matrix = TetrominoModel.getTetrominoesArray()[0]
-        
-          this.setState({tetromino})
+        case key.bottom:
+           this.moveTetromino('BOTTOM')
         break
       }
     })
@@ -335,11 +342,22 @@ export default class Tetris extends Component {
             settings={this.settings}
             className=''
             angle={this.state.rotationAngle}
-            animation={this.state.animation}
+            animation={this.settings.animation}
 
           />
         </Board>
-        
+        <Tetromino
+            {...this.state.tetromino}
+            matrix ={TetrominoModel.getTetrominoesArray()[this.state.tetrominoesArray[0]]}
+            row={5}
+            column={8}
+            index={this.state.tetrominoesArray[0]}
+            settings={this.settings}
+            className=''
+            angle={this.state.rotationAngle}
+            animation={false}
+
+          />
       </div>
     )
   }
