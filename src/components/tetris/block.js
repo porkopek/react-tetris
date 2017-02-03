@@ -1,15 +1,20 @@
 import React from 'react'
 import './block.css'
 export const Block = (props)=>{
-  const {backgroundColor,blockSize, offset,boardColor,blockBorderColor, blockBorderWidth} =props.settings
+  const {blockBorderRadius,blockSize, offset,boardColor,blockBorderColor, blockBorderWidth} =props.settings
   const isBackGround = props.content===0 ? true:false
   const style={
-    backgroundColor: boardColor,
+    backgroundColor: props.backgroundColor,
     width: blockSize,
     height: blockSize,
-    border: isBackGround ? null : `${blockBorderWidth}px solid ${blockBorderColor}`,
+    border: isBackGround               
+              ? `${blockBorderWidth}px solid ${props.backgroundColor}`
+              : `${blockBorderWidth}px solid ${blockBorderColor}`,
     float:'left',
-    margin:`0 0 ${offset}px ${offset}px`,
+    margin:`${offset}px`,
+    borderRadius:blockBorderRadius,
+    transition:'width .4s',
+    
   }
   
   

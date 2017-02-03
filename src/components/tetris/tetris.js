@@ -18,7 +18,10 @@ type State = {
   paused: boolean,
   points:number,
   completedLines:number,
-  level:number
+  level:number,
+  rotationAngle:number,
+  tetrominoMatrix:number[][],
+  animation:boolean,
 }
 export default class Tetris extends Component {
   boardMatrix: number[][]
@@ -29,22 +32,27 @@ export default class Tetris extends Component {
     super(props)
     this.settings = Object.assign({}, settings, props.settings)
     this.handleKeyboard()
-    
+    const tetromino = new TetrominoModel(3, 0, Math.random()*7|0) 
     this.state = {
       boardMatrix: this.initializeBoard(),
       tetrominoesArray:this.initializeTetrominoesArray(),
-      tetromino:new TetrominoModel(3, 0, Math.random()*7|0) ,
+      tetromino:tetromino,
+      tetrominoMatrix:tetromino.matrix,
       intervalId: 0,
       intervalTime: this.settings.intervalTimeInMiliSeconds,
       paused: false,
       points: 0,
       completedLines:0,
-      level:1
+      level:1,
+      rotationAngle:0,
+      animation:this.settings.animation
     }
 
   }
   initializeBoard = () => {
-    return createMatrix(this.settings.rows, this.settings.columns)
+    const boardMatrix= createMatrix(this.settings.rows, this.settings.columns)
+    boardMatrix[19]=[3,3,3,3,3,3,3,3,3,3]
+    return boardMatrix
   }
   initializeTetrominoesArray =()=>{     
     const numberOfTetrominoes =TetrominoModel.getNumberOfTetrominoes()
@@ -76,8 +84,9 @@ export default class Tetris extends Component {
     const tetrominoIndex = tetrominoesArray.shift()
     const startPoint = this.getStartPoint(TetrominoModel.getTetrominoesArray()[tetrominoIndex])
     const newTetromino = new TetrominoModel(startPoint.column, startPoint.row, tetrominoIndex)
-    tetrominoesArray.push(Math.random()*TetrominoModel.getNumberOfTetrominoes()|0)
-    this.setState({tetrominoesArray})
+    const tetrominoMatrix=newTetromino.matrix
+    tetrominoesArray.push(Math.random()*TetrominoModel.getNumberOfTetrominoes()|0)   
+    this.setState({tetrominoesArray, tetrominoMatrix, rotationAngle:0})
     
     return newTetromino
   }
@@ -86,6 +95,7 @@ export default class Tetris extends Component {
     tetromino.collidesWith.bind(tetromino)
     let rowAdvance = 0, columnAdvance = 0
     let mustUpdate = true
+    
     const {boardMatrix} = this.state
     switch (direction) {
       case 'DOWN':
@@ -102,20 +112,23 @@ export default class Tetris extends Component {
     tetromino.column += columnAdvance
     //If collided, move back
     if (tetromino.collidesWith(boardMatrix)) {
+      
       tetromino.row -= rowAdvance
       tetromino.column -= columnAdvance
       mustUpdate = false
     }
+    //restores animation
     if (mustUpdate) {
-      this.setState({ tetromino })
+      this.setState({ tetromino, animation:true })
     }
 
   }
   
   rotateTetromino = () => {
     let tetromino = Object.assign(new TetrominoModel(), this.state.tetromino)
-    
+    let rotationAngle = this.state.rotationAngle
     tetromino.matrix = rotateMatrix(tetromino.matrix, 'RIGHT')
+    rotationAngle+=90
     if (tetromino.collidesWith(this.state.boardMatrix)) {
       if (tetromino.row < 0) {
         tetromino.row = 0
@@ -127,12 +140,15 @@ export default class Tetris extends Component {
         if (tetromino.collidesWith(this.state.boardMatrix)) {
           tetromino.column = tempColum
           tetromino.matrix = rotateMatrix(tetromino.matrix, 'LEFT')
+          rotationAngle-=90
         }
       } else {
         tetromino.matrix = rotateMatrix(tetromino.matrix, 'LEFT')
+        rotationAngle-=90
       }
     }
-    this.setState({ tetromino })
+    //restores animation
+    this.setState({ tetromino, rotationAngle, animation:true })
   }
   handleClick = (event: Event, index: { column: number, row: number }) => {
     const newBoard = this.state.boardMatrix.slice()
@@ -206,22 +222,20 @@ export default class Tetris extends Component {
     
   }
   insertTetrominoInBoard = () => {
-    const newBoard = this.state.boardMatrix.slice()
+    const boardMatrix = this.state.boardMatrix.slice()
     const {tetromino} = this.state
     tetromino.matrix.map((row, rowIndex) =>
       row.map((column, columnIndex) => {
         if (tetromino.matrix[rowIndex][columnIndex] !== 0) {
           try {
-             newBoard[rowIndex + tetromino.row][columnIndex + tetromino.column] = tetromino.matrix[rowIndex][columnIndex]
+             boardMatrix[rowIndex + tetromino.row][columnIndex + tetromino.column] = tetromino.matrix[rowIndex][columnIndex]
           } catch (error) {
            
           }         
         }
       }
       ))
-    this.setState({
-      boardMatrix: newBoard
-    })
+    this.setState({boardMatrix, animation:false})
 
   }
   updatePoints = (completedLines: number) => {
@@ -256,8 +270,9 @@ export default class Tetris extends Component {
     )
   }
   componentWillMount = () => {
-    this.mainLoop()
+    this.mainLoop()    
   }
+  
   changeInterval = () => {
     const intervalDecrement = this.state.intervalTime <= 500
       ? 0
@@ -311,16 +326,19 @@ export default class Tetris extends Component {
     return (
       <div style={style}>
         
-        <Tetromino
-          row = {5}
-          column={13}
-          matrix={TetrominoModel.getTetrominoesArray()[this.state.tetrominoesArray[0]]}
-          index={this.state.tetrominoesArray[0]}
-          settings={this.settings}
-          className=''
+        
+        <Board settings={this.settings} matrix={this.state.boardMatrix}>
+          <Tetromino
+            {...this.state.tetromino}
+            matrix ={this.state.tetrominoMatrix}
+            index={this.state.tetrominoesArray[0]}
+            settings={this.settings}
+            className=''
+            angle={this.state.rotationAngle}
+            animation={this.state.animation}
 
-        />
-        <Board settings={this.settings} matrix={this.state.boardMatrix}/>
+          />
+        </Board>
         
       </div>
     )

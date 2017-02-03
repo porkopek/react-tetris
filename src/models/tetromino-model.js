@@ -63,7 +63,7 @@ export default class TetrominoModel {
     }
   }
   rotate = (rotation: Rotation) => {
-    const firstMatrix = this.matrix
+    
     const newMatrix = rotateMatrix(this.matrix, rotation)
     return newMatrix
   }

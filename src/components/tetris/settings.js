@@ -15,8 +15,10 @@ type Settings = {
   },
   blockBorderColor: string,
   blockBorderWidth:number,
+  blockBorderRadius:number | string,
   intervalTimeInMiliSeconds: number,
-  pointsPerLine:number
+  pointsPerLine:number,
+  animation:boolean,
 }
 export const settings: Settings = {
   blockSize: 30,
@@ -42,7 +44,9 @@ export const settings: Settings = {
   },
   blockBorderColor: 'transparent',
   blockBorderWidth:0,
+  blockBorderRadius:0,
   intervalTimeInMiliSeconds: 1000,
-  pointsPerLine:1000
+  pointsPerLine:1000,
+  animation:true,
 
 } 
