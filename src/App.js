@@ -7,14 +7,14 @@ class App extends Component {
     return (
       <div className="App">
         <Tetris settings={{ blockSize: 5, 
-                            offset: 2, 
+                            offset: 4, 
                             rows: 20, 
                             columns: 10, 
-                            blockBorderWidth: 10,
+                            blockBorderWidth: 8,
                             boardColor:'black',
                             blockBorderRadius:'30%',
                             intervalTimeInMiliSeconds: 1000,
-                            blockOutline:1,
+                            blockOutline:2,
                           }} 
         />
       </div>
