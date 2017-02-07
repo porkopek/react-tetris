@@ -13,6 +13,7 @@ export const Board =(props:Props)=>{
     backgroundColor:props.settings.boardColor,
     paddingRight:props.settings.offset,
     paddingTop:props.settings.offset,
+    position:'relative'
     
   }
   return(

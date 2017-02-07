@@ -2,6 +2,7 @@
 type Settings = {
   blockSize: number,
   tetrominoesColors: [],
+  blockBorderColors:[],
   boardColor: string,
   rows: number,
   columns: number,
@@ -20,7 +21,10 @@ type Settings = {
   intervalTimeInMiliSeconds: number,
   pointsPerLine:number,
   animation:boolean,
-  blockOutline:number
+  blockOutline:number,
+  boardBorderColor:string,
+  buttonsBackgroundColor:string,
+  buttonsColor:string,
 }
 export const settings: Settings = {
   blockSize: 30,
@@ -33,7 +37,7 @@ export const settings: Settings = {
     '#FFE138',
     '#3877FF',
   ],
-  tetrominoesBorderColors: [
+  blockBorderColors: [
     '#b10837',
     '#07698a',
     '#099853',
@@ -61,5 +65,8 @@ export const settings: Settings = {
   pointsPerLine:1000,
   animation:true,
   blockOutline:0,
+  boardBorderColor:'transparent',
+  buttonsBackgroundColor:'black',
+  buttonsColor:'white'
 
 } 

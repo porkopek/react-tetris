@@ -1,7 +1,6 @@
 //@flow
-import React, { Component } from 'react'
+import React from 'react'
 import { Block } from './block'
-import { rotateMatrix } from './helpers'
 import { settings} from './settings'
 import './tetromino.css'
 
@@ -11,12 +10,10 @@ type Props = {
   row: number,
   index: number,
   matrix: number[][],
-  className: string,
   angle:number,
 }
 
 export const Tetromino = (props: Props) => {
-  const {tetrominoesColors} = props.settings
   const totalCell=props.settings.blockSize+2*props.settings.offset+2*props.settings.blockBorderWidth
   const style ={
     width: props.matrix.length* totalCell,
@@ -42,6 +39,7 @@ export const Tetromino = (props: Props) => {
                         ? props.settings.tetrominoesColors[content - 1]
                         : 'transparent'
                       }
+                      isTetromino={true}
                   />
         }))
       }
